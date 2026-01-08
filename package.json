@@ -1,0 +1,36 @@
+{
+  "name": "guoxue-fortune",
+  "version": "1.0.0",
+  "description": "国学今日运势 - 小六壬起卦运势测算工具",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "build": "npm run minify-css && npm run minify-js",
+    "minify-css": "cleancss -o style.min.css style.css",
+    "minify-js": "uglifyjs script.js -o script.min.js -c -m",
+    "serve": "http-server -p 8080 -c-1",
+    "deploy": "npm run build && echo '构建完成，可以部署到服务器'"
+  },
+  "keywords": [
+    "fortune",
+    "divination",
+    "xiaoliuren",
+    "chinese-culture",
+    "poker-cards"
+  ],
+  "author": "国学今日运势",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-css-cli": "^5.6.2",
+    "uglify-js": "^3.17.4",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/guoxue-fortune.git"
+  },
+  "homepage": "https://your-username.github.io/guoxue-fortune/"
+}

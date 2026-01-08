@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI扑克运势测算</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>抽牌问运 · 每日一牌</h1>
+            <p class="subtitle">随心抽取一张牌，解锁今日运势</p>
+        </header>
+
+        <main>
+            <!-- 抽牌区域 -->
+            <section class="card-section" id="cardSection">
+                <p>点击洗牌按钮，然后选择任意一张牌</p>
+                <button id="shuffleBtn" class="btn btn-primary">开始洗牌</button>
+                <div class="cards-container" id="cardsContainer">
+                    <!-- 扑克将通过JS动态生成 -->
+                </div>
+                <div class="selected-card" id="selectedCard">
+                    <!-- 选中的牌将显示在这里 -->
+                </div>
+            </section>
+
+            <!-- 变量输入区域 -->
+            <section class="input-section" id="inputSection" style="display: none;">
+                <!-- 数字输入 - 小六壬起卦 -->
+                <div class="variable-group" id="numberInputGroup">
+                    <label>心中默念心愿，随机想出2个1-9的数字，依次填入下方输入框（结合扑克牌，组成3个数字用于小六壬起卦）</label>
+                    <div class="number-inputs">
+                        <input type="number" id="num1" min="1" max="9" placeholder="第一个数字">
+                        <input type="number" id="num2" min="1" max="9" placeholder="第二个数字">
+                    </div>
+                    <div class="error" id="numberError"></div>
+                    <button id="nextToWeatherBtn" class="btn btn-primary" style="display: none;">下一步：选择天气</button>
+                </div>
+
+                <!-- 天气选择 -->
+                <div class="variable-group" id="weatherInputGroup" style="display: none;">
+                    <label>选择今日天气：</label>
+                    <div class="weather-options">
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="晴" checked>
+                            <span class="weather-icon">☀️</span>
+                            <span>晴</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="阴">
+                            <span class="weather-icon">☁️</span>
+                            <span>阴</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="雨">
+                            <span class="weather-icon">🌧️</span>
+                            <span>雨</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="雪">
+                            <span class="weather-icon">❄️</span>
+                            <span>雪</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="风">
+                            <span class="weather-icon">💨</span>
+                            <span>风</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="多云">
+                            <span class="weather-icon">⛅</span>
+                            <span>多云</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="雷阵雨">
+                            <span class="weather-icon">⛈️</span>
+                            <span>雷阵雨</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="雾">
+                            <span class="weather-icon">🌫️</span>
+                            <span>雾</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="霾">
+                            <span class="weather-icon">🌫️</span>
+                            <span>霾</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="weather" value="冰雹">
+                            <span class="weather-icon">🌨️</span>
+                            <span>冰雹</span>
+                        </label>
+                    </div>
+                    <button id="nextToMoodBtn" class="btn btn-primary">下一步：选择心情</button>
+                </div>
+
+                <!-- 心情选择 -->
+                <div class="variable-group" id="moodInputGroup" style="display: none;">
+                    <label>现在的心情：</label>
+                    <div class="weather-options">
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="开心" checked>
+                            <span class="weather-icon">😊</span>
+                            <span>开心</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="平静">
+                            <span class="weather-icon">😐</span>
+                            <span>平静</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="焦虑">
+                            <span class="weather-icon">😰</span>
+                            <span>焦虑</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="沮丧">
+                            <span class="weather-icon">😔</span>
+                            <span>沮丧</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="兴奋">
+                            <span class="weather-icon">🤩</span>
+                            <span>兴奋</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="疲惫">
+                            <span class="weather-icon">😴</span>
+                            <span>疲惫</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="愤怒">
+                            <span class="weather-icon">😠</span>
+                            <span>愤怒</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="期待">
+                            <span class="weather-icon">😌</span>
+                            <span>期待</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="紧张">
+                            <span class="weather-icon">😓</span>
+                            <span>紧张</span>
+                        </label>
+                        <label class="weather-option">
+                            <input type="radio" name="mood" value="悲伤">
+                            <span class="weather-icon">😢</span>
+                            <span>悲伤</span>
+                        </label>
+                    </div>
+                    <button id="generateBtn" class="btn btn-primary">生成今日运势</button>
+                </div>
+            </section>
+
+            <!-- 结果展示区域 -->
+            <section class="result-section" id="resultSection" style="display: none;">
+                <div class="result-card" id="resultCard">
+                    <!-- AI生成的运势将显示在这里 -->
+                </div>
+                <button id="restartBtn" class="btn btn-secondary">重新测算</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>轻量娱乐工具 · 仅供参考 · 请勿过度依赖</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
