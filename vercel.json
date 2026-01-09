@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/ai-fortune.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "API_KEY": "3402183a-fbff-4f4d-8379-9477281a706c"
+  }
+}

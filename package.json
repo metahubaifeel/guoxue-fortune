@@ -1,11 +1,11 @@
 {
-  "name": "xiaoshifu-ai-proxy",
+  "name": "xiaoshifu-complete",
   "version": "1.0.0",
-  "description": "AI代理服务器 for 小师傅来一卦",
-  "main": "ai-proxy-server.js",
+  "description": "小师傅来一卦 - 完整版",
+  "main": "railway-server.js",
   "scripts": {
-    "start": "node ai-proxy-server.js",
-    "dev": "node ai-proxy-server.js"
+    "start": "node railway-server.js",
+    "dev": "node railway-server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -14,8 +14,5 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "keywords": ["ai", "proxy", "fortune", "xiaoshifu"],
-  "author": "Your Name",
-  "license": "MIT"
+  }
 }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小师傅来一卦</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>小师傅来一卦</h1>
+        <p class="subtitle">随心抽取一张牌，解锁今日运势</p>
+        
+        <div class="card-selection">
+            <label>🎯 选择一张扑克牌：</label>
+            <div class="card-grid" id="cardGrid">
+                <div class="card" data-card="A">A ♠️</div>
+                <div class="card" data-card="2">2 ♥️</div>
+                <div class="card" data-card="3">3 ♣️</div>
+                <div class="card" data-card="4">4 ♦️</div>
+                <div class="card" data-card="5">5 ♠️</div>
+                <div class="card" data-card="6">6 ♥️</div>
+                <div class="card" data-card="7">7 ♣️</div>
+                <div class="card" data-card="8">8 ♦️</div>
+                <div class="card" data-card="9">9 ♠️</div>
+                <div class="card" data-card="10">10 ♥️</div>
+                <div class="card" data-card="J">J ♣️</div>
+                <div class="card" data-card="Q">Q ♦️</div>
+                <div class="card" data-card="K">K ♠️</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label>🔢 输入两个幸运数字（1-99）：</label>
+            <input type="number" id="num1" placeholder="第一个数字" min="1" max="99" value="1">
+            <input type="number" id="num2" placeholder="第二个数字" min="1" max="99" value="1">
+        </div>
+        
+        <div class="input-group">
+            <label>🌤️ 今日天气：</label>
+            <select id="weather">
+                <option value="晴">晴天</option>
+                <option value="阴">阴天</option>
+                <option value="雨">雨天</option>
+                <option value="雪">雪天</option>
+                <option value="风">大风</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label>😊 当前心情：</label>
+            <select id="mood">
+                <option value="开心">开心</option>
+                <option value="平静">平静</option>
+                <option value="焦虑">焦虑</option>
+                <option value="期待">期待</option>
+                <option value="烦躁">烦躁</option>
+            </select>
+        </div>
+        
+        <button class="btn" id="startBtn" onclick="startFortune()">🔮 开始占卜</button>
+        
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-emoji">🔮</div>
+            <div class="loading-text">小师傅正在起卦中</div>
+            <div class="loading-subtext">天机不可泄露，容我掐指一算</div>
+        </div>
+        
+        <div class="result" id="result">
+            <div class="fortune-content" id="fortuneContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 修改API调用地址为Vercel Serverless Function
+        const AI_PROXY_URL = '/api/ai-fortune';
+        
+        // 其余代码保持不变...
+        // 复制原有的JavaScript代码
+    </script>
+</body>
+</html>

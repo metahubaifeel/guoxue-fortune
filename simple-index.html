@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小师傅来一卦</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #8b4513;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            color: #a0522d;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        
+        .card-selection {
+            margin: 30px 0;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f5f0e6 0%, #e8dfd0 100%);
+            border: 3px solid #d4c5b0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #8b4513;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: #8b4513;
+        }
+        
+        .card.selected {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: white;
+            border-color: #654321;
+        }
+        
+        .input-group {
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d4c5b0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: #f5f0e6;
+            color: #8b4513;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #8b4513;
+            box-shadow: 0 0 10px rgba(139, 69, 19, 0.3);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f0e6 0%, #e8dfd0 100%);
+            border-radius: 20px;
+            border: 2px solid #d4c5b0;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-emoji {
+            font-size: 3rem;
+            animation: bounce 2s infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .loading-text {
+            font-size: 1.5em;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+        
+        .loading-subtext {
+            color: #a0522d;
+            font-style: italic;
+        }
+        
+        .fortune-content {
+            line-height: 1.8;
+            font-size: 1.1em;
+            color: #5d4037;
+        }
+        
+        .fortune-base {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #8b4513;
+        }
+        
+        .fortune-paragraph {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            border-left: 3px solid #d4c5b0;
+        }
+        
+        .fortune-guaxiang {
+            color: #8b4513;
+            font-weight: bold;
+            background: rgba(139, 69, 19, 0.1);
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+        
+        .fortune-weather {
+            color: #4682b4;
+            font-weight: bold;
+        }
+        
+        .fortune-mood {
+            color: #9370db;
+            font-weight: bold;
+        }
+        
+        .fortune-key-advice {
+            color: #2e8b57;
+            font-weight: bold;
+            background: rgba(46, 139, 87, 0.1);
+            padding: 2px 6px;
+            border-radius: 5px;
+            border: 1px solid rgba(46, 139, 87, 0.3);
+        }
+        
+        .fortune-number {
+            color: #ff6b6b;
+            font-weight: bold;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+        
+        .fortune-category {
+            color: #cd853f;
+            font-weight: bold;
+            background: rgba(205, 133, 63, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border-left: 3px solid #cd853f;
+            margin: 10px 0 5px 0;
+            display: inline-block;
+        }
+        
+        .fortune-advice-title {
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 1.2em;
+            background: rgba(139, 69, 19, 0.1);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(139, 69, 19, 0.3);
+            margin: 15px 0;
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>小师傅来一卦</h1>
+        <p class="subtitle">随心抽取一张牌，解锁今日运势</p>
+        
+        <div class="card-selection">
+            <label>🎯 选择一张扑克牌：</label>
+            <div class="card-grid" id="cardGrid">
+                <div class="card" data-card="A">A ♠️</div>
+                <div class="card" data-card="2">2 ♥️</div>
+                <div class="card" data-card="3">3 ♣️</div>
+                <div class="card" data-card="4">4 ♦️</div>
+                <div class="card" data-card="5">5 ♠️</div>
+                <div class="card" data-card="6">6 ♥️</div>
+                <div class="card" data-card="7">7 ♣️</div>
+                <div class="card" data-card="8">8 ♦️</div>
+                <div class="card" data-card="9">9 ♠️</div>
+                <div class="card" data-card="10">10 ♥️</div>
+                <div class="card" data-card="J">J ♣️</div>
+                <div class="card" data-card="Q">Q ♦️</div>
+                <div class="card" data-card="K">K ♠️</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label>🔢 输入两个幸运数字（1-99）：</label>
+            <input type="number" id="num1" placeholder="第一个数字" min="1" max="99" value="1">
+            <input type="number" id="num2" placeholder="第二个数字" min="1" max="99" value="1">
+        </div>
+        
+        <div class="input-group">
+            <label>🌤️ 今日天气：</label>
+            <select id="weather">
+                <option value="晴">晴天</option>
+                <option value="阴">阴天</option>
+                <option value="雨">雨天</option>
+                <option value="雪">雪天</option>
+                <option value="风">大风</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label>😊 当前心情：</label>
+            <select id="mood">
+                <option value="开心">开心</option>
+                <option value="平静">平静</option>
+                <option value="焦虑">焦虑</option>
+                <option value="期待">期待</option>
+                <option value="烦躁">烦躁</option>
+            </select>
+        </div>
+        
+        <button class="btn" id="startBtn" onclick="startFortune()">🔮 开始占卜</button>
+        
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-emoji">🔮</div>
+            <div class="loading-text">小师傅正在起卦中</div>
+            <div class="loading-subtext">天机不可泄露，容我掐指一算</div>
+        </div>
+        
+        <div class="result" id="result">
+            <div class="fortune-content" id="fortuneContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 小六壬算法
+        function calculateXiaoLiuRen(card, num1, num2) {
+            const cardValues = {'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13};
+            const cardNum = cardValues[card];
+            const total = cardNum + parseInt(num1) + parseInt(num2);
+            const remainder = total % 6;
+            const guaIndex = remainder === 0 ? 5 : remainder - 1;
+            const guaXiang = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'];
+            
+            return {
+                卦象: guaXiang[guaIndex],
+                计算过程: `${cardNum} + ${num1} + ${num2} = ${total}, ${total} % 6 = ${remainder}`
+            };
+        }
+
+        // 获取卦象诗词
+        function getGuaXiangPoem(guaXiang) {
+            const poems = {
+                '大安': '大安事事昌，求财在坤方。失物去不远，宅舍保安康。',
+                '留连': '留连事难成，求谋日未明。官事只宜缓，去者未回程。',
+                '速喜': '速喜喜来临，求财向南行。失物申未午，逢人路上寻。',
+                '赤口': '赤口主口舌，官非切要防。失物急去寻，行人有惊慌。',
+                '小吉': '小吉最吉昌，路上好商量。阴人来报喜，失物在坤方。',
+                '空亡': '空亡事不祥，阴人多乖张。求财无利益，行人有灾殃。'
+            };
+            return poems[guaXiang] || '卦象未明，需谨慎行事。';
+        }
+
+        // 格式化运势内容
+        function formatFortuneContent(content) {
+            // 替换常见的标点符号，优化排版
+            content = content.replace(/。/g, '。<br>');
+            content = content.replace(/！/g, '！<br>');
+            content = content.replace(/？/g, '？<br>');
+            content = content.replace(/；/g, '；<br>');
+            
+            // 处理数字列表
+            content = content.replace(/(\d+)[\.、]/g, '<br><strong class="fortune-number">$1.</strong>');
+            
+            // 处理建议部分
+            content = content.replace(/建议[：:]/g, '<br><strong class="fortune-advice-title">建议：</strong>');
+            content = content.replace(/今日建议[：:]/g, '<br><strong class="fortune-advice-title">今日建议：</strong>');
+            
+            // 处理工作、学习、生活等方面
+            content = content.replace(/工作[：:]/g, '<br><strong class="fortune-category">工作：</strong>');
+            content = content.replace(/学习[：:]/g, '<br><strong class="fortune-category">学习：</strong>');
+            content = content.replace(/生活[：:]/g, '<br><strong class="fortune-category">生活：</strong>');
+            content = content.replace(/人际[：:]/g, '<br><strong class="fortune-category">人际：</strong>');
+            content = content.replace(/健康[：:]/g, '<br><strong class="fortune-category">健康：</strong>');
+            content = content.replace(/财运[：:]/g, '<br><strong class="fortune-category">财运：</strong>');
+            content = content.replace(/感情[：:]/g, '<br><strong class="fortune-category">感情：</strong>');
+            
+            // 处理卦象名称
+            content = content.replace(/(大安|留连|速喜|赤口|小吉|空亡)/g, '<strong class="fortune-guaxiang">$1</strong>');
+            
+            // 处理天气和心情关键词
+            content = content.replace(/(晴天|阴天|雨天|雪天|大风|晴朗)/g, '<strong class="fortune-weather">$1</strong>');
+            content = content.replace(/(开心|焦虑|平静|兴奋|烦躁|忧郁|期待)/g, '<strong class="fortune-mood">$1</strong>');
+            
+            // 重点：处理实际的建议性内容
+            content = content.replace(/(主动与朋友、同事交流互动|其实是充满活力与希望的|不要过于吹嘘或夸大其词|保持平和心态|顺其自然|提前做好准备|多留意细节|灵活应对|保持乐观|积极面对|谨慎处理|认真对待|用心经营|把握机会|化解矛盾|增进感情|提升自我|调整心态|做好准备|留有余地|循序渐进|稳扎稳打|脚踏实地|量力而行|适可而止|见好就收|及时止损|保持冷静|理性分析|深思熟虑|全面考虑|权衡利弊|做出选择|承担责任|勇于面对|敢于尝试|突破自我|开拓创新|与时俱进|不断学习|积累经验|提升能力|完善自我|追求卓越|精益求精|追求完美|注重细节|把握时机|抢占先机|赢得主动|占据优势|脱颖而出|展现自我|实现价值|达成目标|实现梦想|追求幸福|享受生活|珍惜当下|感恩拥有|保持初心|不忘本心|坚持原则|守住底线|不越红线|谨言慎行|三思而后行|谋定而后动|审时度势|随机应变|因势利导|顺势而为|借势发力|借力打力|以退为进|以守为攻|攻守兼备|进退有度|收放自如|张弛有度|劳逸结合|松紧适度|把握分寸|掌握火候|恰到好处|适可而止|见好就收|穷寇莫追|逢凶化吉|转危为安|化险为夷|遇难呈祥|否极泰来|时来运转|柳暗花明|峰回路转|绝处逢生|起死回生|脱胎换骨|焕然一新|重获新生|重新开始|重新出发|从头再来|再接再厉|百折不挠|永不言弃|坚持不懈|持之以恒|锲而不舍|金石可镂|水滴石穿|绳锯木断|铁杵成针|百炼成钢|千锤百炼|精益求精|追求完美|至善至美|美轮美奂|巧夺天工|出神入化|炉火纯青|登峰造极|无与伦比|无可比拟|前所未有|闻所未闻|见所未见)/g, '<strong class="fortune-key-advice">$1</strong>');
+            
+            return content;
+        }
+
+        // 生成备用运势（当AI不可用时）
+        function generateFallbackFortune(guaXiang, weather, mood) {
+            const poem = getGuaXiangPoem(guaXiang);
+            
+            const advice = {
+                '大安': '今日大安，诸事顺遂。适合开展新计划，把握机会，保持积极心态。',
+                '留连': '今日留连，宜静不宜动。做事要有耐心，不要急于求成，多观察思考。',
+                '速喜': '今日速喜，好消息即将到来。保持乐观，积极行动，会有意外收获。',
+                '赤口': '今日赤口，注意言行。避免争执，谨慎处理人际关系，说话要三思。',
+                '小吉': '今日小吉，小有所得。适合处理日常事务，积小成大，稳步前进。',
+                '空亡': '今日空亡，宜守不宜攻。保持低调，避免重大决策，静待时机。'
+            };
+            
+            return `
+                <div class="fortune-base">今日卦象：<strong class="fortune-guaxiang">${guaXiang}</strong></div>
+                <p class="fortune-paragraph">卦象解析：${poem}</p>
+                <p class="fortune-paragraph">今日建议：${advice[guaXiang]} 结合${weather}天气和您的${mood}心情，建议您保持平和心态，顺其自然。</p>
+                <p class="fortune-paragraph"><small>（使用备用算法生成）</small></p>
+            `;
+        }
+
+        // 主要函数
+        let selectedCard = null;
+
+        // 卡片选择
+        document.getElementById('cardGrid').addEventListener('click', function(e) {
+            if (e.target.classList.contains('card')) {
+                // 移除之前的选中状态
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // 添加选中状态
+                e.target.classList.add('selected');
+                selectedCard = e.target.dataset.card;
+            }
+        });
+
+        // 开始占卜
+        async function startFortune() {
+            // 验证输入
+            if (!selectedCard) {
+                alert('请先选择一张扑克牌！');
+                return;
+            }
+            
+            const num1 = document.getElementById('num1').value;
+            const num2 = document.getElementById('num2').value;
+            const weather = document.getElementById('weather').value;
+            const mood = document.getElementById('mood').value;
+            
+            if (!num1 || !num2) {
+                alert('请输入两个幸运数字！');
+                return;
+            }
+            
+            if (parseInt(num1) < 1 || parseInt(num1) > 99 || parseInt(num2) < 1 || parseInt(num2) > 99) {
+                alert('请输入1-99之间的数字！');
+                return;
+            }
+            
+            // 计算小六壬卦象
+            const xiaoLiuRenResult = calculateXiaoLiuRen(selectedCard, num1, num2);
+            
+            // 显示加载状态
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').classList.remove('show');
+            
+            try {
+                // 尝试调用AI API
+                const response = await fetch('https://xiaoshifu-fortune-production.up.railway.app/api/ai-fortune', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        card: selectedCard,
+                        num1: num1,
+                        num2: num2,
+                        weather: weather,
+                        mood: mood,
+                        guaXiang: xiaoLiuRenResult.卦象
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // AI生成内容成功
+                        const formattedContent = formatFortuneContent(data.data.ai解读);
+                        document.getElementById('fortuneContent').innerHTML = formattedContent;
+                    } else {
+                        // AI返回错误，使用备用算法
+                        const fallbackContent = generateFallbackFortune(xiaoLiuRenResult.卦象, weather, mood);
+                        document.getElementById('fortuneContent').innerHTML = fallbackContent;
+                    }
+                } else {
+                    // API调用失败，使用备用算法
+                    const fallbackContent = generateFallbackFortune(xiaoLiuRenResult.卦象, weather, mood);
+                    document.getElementById('fortuneContent').innerHTML = fallbackContent;
+                }
+                
+            } catch (error) {
+                // 网络错误，使用备用算法
+                console.error('AI API调用失败:', error);
+                const fallbackContent = generateFallbackFortune(xiaoLiuRenResult.卦象, weather, mood);
+                document.getElementById('fortuneContent').innerHTML = fallbackContent;
+            }
+            
+            // 显示结果
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('result').classList.add('show');
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认值
+            document.getElementById('num1').value = Math.floor(Math.random() * 9) + 1;
+            document.getElementById('num2').value = Math.floor(Math.random() * 9) + 1;
+        });
+    </script>
+</body>
+</html>
