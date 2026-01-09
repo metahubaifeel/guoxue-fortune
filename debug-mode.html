@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>调试模式</title>
+</head>
+<body>
+    <h1>调试模式 - 检查AI是否真的被调用</h1>
+    <button onclick="debugTest()">开始调试测试</button>
+    <div id="debugInfo" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace;"></div>
+    <div id="result"></div>
+    
+    <script>
+    function log(message) {
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML += new Date().toLocaleTimeString() + ' - ' + message + '<br>';
+        console.log(message);
+    }
+    
+    async function debugTest() {
+        const result = document.getElementById('result');
+        log('开始调试测试');
+        
+        // 模拟你的应用流程
+        const card = 'A';
+        const num1 = 1;
+        const num2 = 1;
+        const weather = '晴';
+        const mood = '开心';
+        
+        log(`输入参数: 牌=${card}, 数字=${num1},${num2}, 天气=${weather}, 心情=${mood}`);
+        
+        // 小六壬算法
+        const cardValues = {'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13};
+        const cardNum = cardValues[card];
+        const total = cardNum + num1 + num2;
+        const remainder = total % 6;
+        const guaIndex = remainder === 0 ? 5 : remainder - 1;
+        const guaXiang = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'];
+        const 卦象 = guaXiang[guaIndex];
+        
+        log(`小六壬计算: ${total} % 6 = ${remainder} → 卦象: ${卦象}`);
+        
+        // 尝试调用AI API
+        try {
+            log('正在调用AI API...');
+            
+            const apiKey = '3402183a-fbff-4f4d-8379-9477281a706c';
+            const apiEndpoint = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+            const model = 'doubao-1-5-pro-32k-250115';
+            
+            const messages = [
+                {
+                    "role": "system",
+                    "content": "你是一位精通小六壬的国学大师"
+                },
+                {
+                    "role": "user",
+                    "content": `今日卦象是${卦象}，天气${weather}，心情${mood}，请用现代语言解读并给出建议`
+                }
+            ];
+            
+            log('请求配置: ' + JSON.stringify({model, messages: messages.length}, null, 2));
+            
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: messages,
+                    temperature: 1.2,
+                    max_tokens: 300
+                })
+            });
+            
+            log(`API响应状态: ${response.status}`);
+            log(`响应头: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                log('AI响应成功!');
+                log(`AI回复: ${data.choices[0].message.content}`);
+                result.innerHTML = `<p style="color: green;">✓ AI API调用成功!</p><p>${data.choices[0].message.content}</p>`;
+            } else {
+                const errorText = await response.text();
+                log(`API错误: ${errorText}`);
+                result.innerHTML = `<p style="color: red;">✗ API调用失败: ${response.status}</p><p>${errorText}</p>`;
+            }
+            
+        } catch (error) {
+            log(`完全失败: ${error.message}`);
+            result.innerHTML = `<p style="color: red;">✗ 完全失败: ${error.message}</p>`;
+            console.error('完整错误:', error);
+        }
+    }
+    </script>
+</body>
+</html>

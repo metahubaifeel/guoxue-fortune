@@ -1,0 +1,17 @@
+{
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "node ai-proxy-server.js",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "API_KEY": "3402183a-fbff-4f4d-8379-9477281a706c",
+    "MODEL_NAME": "doubao-1-5-pro-32k-250115",
+    "API_ENDPOINT": "https://ark.cn-beijing.volces.com/api/v3/chat/completions"
+  }
+}

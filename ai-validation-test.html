@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI真实性验证测试</title>
+</head>
+<body>
+    <h1>AI真实性验证测试</h1>
+    <p>测试相同输入是否得到不同的AI回复</p>
+    <button onclick="testMultipleTimes()">连续测试3次</button>
+    <div id="debugInfo" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace; white-space: pre-wrap;"></div>
+    <div id="results"></div>
+    
+    <script>
+    function log(message) {
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML += new Date().toLocaleTimeString() + ' - ' + message + '\n';
+        console.log(message);
+    }
+    
+    async function testMultipleTimes() {
+        const results = document.getElementById('results');
+        results.innerHTML = '';
+        log('开始AI真实性验证测试...');
+        
+        // 完全相同的小六壬参数
+        const card = 'A';
+        const num1 = 1;
+        const num2 = 1;
+        const weather = '晴';
+        const mood = '开心';
+        
+        log(`固定参数: 牌=${card}, 数字=${num1},${num2}, 天气=${weather}, 心情=${mood}`);
+        
+        // 小六壬计算
+        const cardValues = {'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13};
+        const cardNum = cardValues[card];
+        const total = cardNum + num1 + num2;
+        const remainder = total % 6;
+        const guaIndex = remainder === 0 ? 5 : remainder - 1;
+        const guaXiang = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'][guaIndex];
+        
+        log(`小六壬结果: ${total} % 6 = ${remainder} → 卦象: ${guaXiang}`);
+        
+        // 连续测试3次
+        for (let i = 1; i <= 3; i++) {
+            log(`\n--- 第${i}次测试 ---`);
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/ai-fortune', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        card: card,
+                        num1: num1,
+                        num2: num2,
+                        weather: weather,
+                        mood: mood,
+                        guaXiang: guaXiang
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const aiText = data.data.ai解读;
+                    const first100Chars = aiText.substring(0, 100);
+                    
+                    log(`第${i}次AI回复: ${first100Chars}...`);
+                    
+                    results.innerHTML += `
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            <h3>第${i}次测试结果</h3>
+                            <p><strong>卦象:</strong> ${data.data.卦象}</p>
+                            <p><strong>AI回复前100字:</strong></p>
+                            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 5px;">
+                                ${first100Chars}...
+                            </div>
+                            <p style="font-size: 12px; color: #666;">时间: ${data.data.时间}</p>
+                        </div>
+                    `;
+                } else {
+                    log(`第${i}次测试失败: ${response.status}`);
+                    results.innerHTML += `<p style="color: red;">第${i}次测试失败</p>`;
+                }
+                
+                // 等待2秒再测试下一次
+                if (i < 3) {
+                    log('等待2秒...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+                
+            } catch (error) {
+                log(`第${i}次测试错误: ${error.message}`);
+                results.innerHTML += `<p style="color: red;">第${i}次测试错误: ${error.message}</p>`;
+            }
+        }
+        
+        log('\n✅ 测试完成！如果3次结果内容不同，说明AI真正在工作！');
+        results.innerHTML += `
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                <h3>🎯 验证结论</h3>
+                <p>如果上面3次测试的AI回复内容有明显差异，说明系统真正调用了AI API！</p>
+                <p>如果内容完全相同，则可能是备用算法在运行。</p>
+            </div>
+        `;
+    }
+    </script>
+</body>
+</html>

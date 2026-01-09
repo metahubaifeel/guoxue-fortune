@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI测试对比</title>
+</head>
+<body>
+    <h1>AI测试对比</h1>
+    <button onclick="testBoth()">测试两个API</button>
+    <div id="result"></div>
+    
+    <script>
+    async function testBoth() {
+        const result = document.getElementById('result');
+        result.innerHTML = '正在测试两个API...';
+        
+        // 测试1: 火山引擎API
+        try {
+            const apiKey = '3402183a-fbff-4f4d-8379-9477281a706c';
+            const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'doubao-1-5-pro-32k-250115',
+                    messages: [{"role": "user", "content": "用10个字说运势"}],
+                    max_tokens: 20
+                })
+            });
+            
+            result.innerHTML += `<p>火山引擎API状态: ${response.status}</p>`;
+            
+            if (response.ok) {
+                const data = await response.json();
+                result.innerHTML += `<p style="color: green;">火山引擎成功: ${data.choices[0].message.content}</p>`;
+            } else {
+                const errorText = await response.text();
+                result.innerHTML += `<p style="color: red;">火山引擎失败: ${errorText}</p>`;
+            }
+        } catch (error) {
+            result.innerHTML += `<p style="color: red;">火山引擎错误: ${error.message}</p>`;
+        }
+        
+        // 测试2: 使用免费API作为对比
+        try {
+            const response = await fetch('https://api.openai-proxy.org/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer sk-dummy-key-for-testing'
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [{"role": "user", "content": "用10个字说运势"}],
+                    max_tokens: 20
+                })
+            });
+            
+            result.innerHTML += `<p>免费API状态: ${response.status}</p>`;
+            
+            if (response.ok) {
+                const data = await response.json();
+                result.innerHTML += `<p style="color: green;">免费API成功: ${data.choices[0].message.content}</p>`;
+            } else {
+                const errorText = await response.text();
+                result.innerHTML += `<p style="color: red;">免费API失败: ${errorText}</p>`;
+            }
+        } catch (error) {
+            result.innerHTML += `<p style="color: orange;">免费API错误: ${error.message}</p>`;
+        }
+    }
+    </script>
+</body>
+</html>

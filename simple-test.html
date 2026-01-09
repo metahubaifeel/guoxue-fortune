@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>简单API测试</title>
+</head>
+<body>
+    <h1>简单API测试</h1>
+    <button onclick="simpleTest()">简单测试</button>
+    <div id="result"></div>
+    
+    <script>
+    async function simpleTest() {
+        const result = document.getElementById('result');
+        result.innerHTML = '正在测试...';
+        
+        try {
+            // 先测试网络连接
+            const healthCheck = await fetch('https://httpbin.org/get');
+            if (healthCheck.ok) {
+                result.innerHTML = '<p style="color: green;">✓ 网络连接正常</p>';
+            }
+            
+            // 测试火山引擎API
+            const apiKey = '3402183a-fbff-4f4d-8379-9477281a706c';
+            const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'doubao-1-5-pro-32k-250115',
+                    messages: [{"role": "user", "content": "你好"}],
+                    max_tokens: 10
+                })
+            });
+            
+            console.log('响应状态:', response.status);
+            console.log('响应头:', Object.fromEntries(response.headers.entries()));
+            
+            if (response.ok) {
+                const data = await response.json();
+                result.innerHTML += '<p style="color: green;">✓ API连接成功</p>';
+                result.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } else {
+                const errorText = await response.text();
+                result.innerHTML += `<p style="color: red;">✗ API连接失败: ${response.status}</p>`;
+                result.innerHTML += `<p>${errorText}</p>`;
+                console.error('API错误:', errorText);
+            }
+            
+        } catch (error) {
+            console.error('完全失败:', error);
+            result.innerHTML += `<p style="color: red;">✗ 完全失败: ${error.message}</p>`;
+        }
+    }
+    </script>
+</body>
+</html>

@@ -396,8 +396,24 @@ async function generateFortune() {
     const weather = document.querySelector('input[name="weather"]:checked').value;
     const mood = document.querySelector('input[name="mood"]:checked').value;
     
-    // 更新界面
-    resultCard.innerHTML = '<div class="loading-text">大师正在推演你的今日运势... <div class="loading"></div></div>';
+    // 隐藏调试信息区域（不在界面上显示）
+    const debugInfo = document.getElementById('debugInfo');
+    debugInfo.style.display = 'none';
+    
+    // 更新界面 - 更生动的文案和动效
+    resultCard.innerHTML = `
+        <div class="loading-container">
+            <div class="loading-emoji">🔮</div>
+            <div class="loading-text">小师傅正在起卦中</div>
+            <div class="loading-subtext">天机不可泄露，容我掐指一算</div>
+            <div class="loading-dots">
+                <span class="dot">.</span>
+                <span class="dot">.</span>
+                <span class="dot">.</span>
+            </div>
+            <div class="loading"></div>
+        </div>
+    `;
     
     // 切换显示区域
     inputSection.style.display = 'none';
@@ -418,55 +434,45 @@ async function generateFortune() {
     
     // 显示结果，添加淡入动画
     resultCard.innerHTML = `<div class="fortune-content fade-in-element">${fortune}</div>`;
+    
+    // 如果是备用结果，显示提示
+    if (fortune.includes('使用备用算法')) {
+        debugInfo.innerHTML += '<br><span style="color: orange;">⚠️ 当前为备用算法结果，AI API可能暂时不可用</span>';
+    }
 }
 
-// 根据卦象、天气和心情生成个性化建议
-function getPersonalizedAdvice(卦象, weather, mood) {
-    // 基础建议映射
-    const baseAdvice = {
-        '大安': '今日适合展开新计划，一切顺利',
-        '留连': '适合稳扎稳打，不宜急躁',
-        '速喜': '适合抓住机会，积极行动',
-        '赤口': '需注意人际关系，避免冲突',
-        '小吉': '适合沟通交流，易得贵人相助',
-        '空亡': '适合休养生息，不宜冒险'
+// 小六壬起卦算法
+function calculateXiaoLiuRen(cardNum, num1, num2) {
+    // 小六壬六个卦象
+    const guaXiang = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'];
+    
+    // 计算三个数字的和
+    const total = cardNum + num1 + num2;
+    
+    // 小六壬算法：用总和除以6，取余数确定卦象
+    // 余数为0时是第6个卦象（空亡），余数为1-5对应前5个卦象
+    const remainder = total % 6;
+    const guaIndex = remainder === 0 ? 5 : remainder - 1;
+    
+    return {
+        卦象: guaXiang[guaIndex],
+        数字和: total,
+        余数: remainder
+    };
+}
+
+// 获取卦象的完整诗句
+function getGuaXiangPoem(卦象) {
+    const poems = {
+        '大安': '大安事事昌，求财在坤方，失物去不远，宅舍保安康。行人身未动，病者主无妨，将军回田野，仔细更推详。',
+        '留连': '留连事难成，求谋日未明，官事凡宜缓，去者未回程。失物南方见，急讨方心称，更须防口舌，人口且平平。',
+        '速喜': '速喜喜来临，求财向南行，失物申未午，逢人路上寻。官事有福德，病者无祸侵，田宅六畜吉，行人有信音。',
+        '赤口': '赤口主口舌，官非切要防，失物急去寻，行人有惊慌。鸡犬多作怪，病者出西方，更须防咀咒，恐怕染瘟殃。',
+        '小吉': '小吉最吉昌，路上好商量，阴人来报喜，失物在坤方。行人立便至，交易甚是强，凡事皆和合，病者祷上苍。',
+        '空亡': '空亡事不祥，阴人多乖张，求财无利益，行人有灾殃。失物寻不见，官事有刑伤，病人逢暗鬼，解禳保安康。'
     };
     
-    // 天气影响
-    const weatherAdvice = {
-        '晴': '在晴朗天气下，心情愉悦，适合外出活动',
-        '阴': '在阴沉天气下，适合室内思考，静心养性',
-        '雨': '在雨天里，适合居家休息，整理思绪',
-        '雪': '在雪天中，适合慢节奏，享受宁静时光',
-        '风': '在风大天气下，适合保持灵活，随机应变',
-        '多云': '在多云天气下，适合平衡心态，顺其自然',
-        '雷阵雨': '在雷雨天气下，适合保持警觉，谨慎行事',
-        '雾': '在雾天里，适合放慢脚步，仔细观察',
-        '霾': '在霾天气下，适合室内活动，保护健康',
-        '冰雹': '在冰雹天气下，适合寻找安全，避免外出'
-    };
-    
-    // 心情影响
-    const moodAdvice = {
-        '开心': '保持这份愉悦，将正能量传递给身边的人',
-        '平静': '保持内心的宁静，适合做出理性决策',
-        '焦虑': '深呼吸，相信一切都会好起来',
-        '沮丧': '给自己一些时间，明天会更好',
-        '兴奋': '将这份热情转化为行动力',
-        '疲惫': '适当休息，养精蓄锐',
-        '愤怒': '深呼吸，让情绪慢慢平复',
-        '期待': '保持希望，美好的事情即将发生',
-        '紧张': '放松身心，相信自己能够应对',
-        '悲伤': '允许自己感受情绪，然后慢慢放下'
-    };
-    
-    // 组合建议
-    let advice = baseAdvice[卦象] || '保持平和心态';
-    advice += '，' + (weatherAdvice[weather] || '适应天气变化');
-    advice += '，' + (moodAdvice[mood] || '保持内心平衡');
-    advice += '。';
-    
-    return advice;
+    return poems[卦象] || '';
 }
 
 // 优化运势内容的HTML结构
@@ -482,7 +488,39 @@ function formatFortuneContent(content) {
     content = content.replace(/^\s*-\s*/gm, '');
     
     // 处理换行，转换为HTML <br>标签
-    content = content.replace(/\n/g, '<br>');
+    content = content.replace(/。/g, '。<br>');
+    content = content.replace(/！/g, '！<br>');
+    content = content.replace(/？/g, '？<br>');
+    content = content.replace(/；/g, '；<br>');
+    
+    // 处理数字列表
+    content = content.replace(/(\d+)[\.、]/g, '<br><strong class="fortune-number">$1.</strong>');
+    
+    // 处理建议部分
+    content = content.replace(/建议[：:]/g, '<br><strong class="fortune-advice-title">建议：</strong>');
+    content = content.replace(/今日建议[：:]/g, '<br><strong class="fortune-advice-title">今日建议：</strong>');
+    
+    // 处理工作、学习、生活等方面
+    content = content.replace(/工作[：:]/g, '<br><strong class="fortune-category">工作：</strong>');
+    content = content.replace(/学习[：:]/g, '<br><strong class="fortune-category">学习：</strong>');
+    content = content.replace(/生活[：:]/g, '<br><strong class="fortune-category">生活：</strong>');
+    content = content.replace(/人际[：:]/g, '<br><strong class="fortune-category">人际：</strong>');
+    content = content.replace(/健康[：:]/g, '<br><strong class="fortune-category">健康：</strong>');
+    content = content.replace(/财运[：:]/g, '<br><strong class="fortune-category">财运：</strong>');
+    content = content.replace(/感情[：:]/g, '<br><strong class="fortune-category">感情：</strong>');
+    
+    // 处理卦象名称
+    content = content.replace(/(大安|留连|速喜|赤口|小吉|空亡)/g, '<strong class="fortune-guaxiang">$1</strong>');
+    
+    // 处理天气和心情关键词
+    content = content.replace(/(晴天|阴天|雨天|雪天|大风|晴朗)/g, '<strong class="fortune-weather">$1</strong>');
+    content = content.replace(/(开心|焦虑|平静|兴奋|烦躁|忧郁|期待)/g, '<strong class="fortune-mood">$1</strong>');
+    
+    // 处理强调语气
+    content = content.replace(/(注意|提醒|切记|务必|特别)/g, '<strong class="fortune-emphasis">$1</strong>');
+    
+    // 重点：处理实际的建议性内容，而不是无意义的词
+    content = content.replace(/(主动与朋友、同事交流互动|其实是充满活力与希望的|不要过于吹嘘或夸大其词|保持平和心态|顺其自然|提前做好准备|多留意细节|灵活应对|保持乐观|积极面对|谨慎处理|认真对待|用心经营|把握机会|化解矛盾|增进感情|提升自我|调整心态|做好准备|留有余地|循序渐进|稳扎稳打|脚踏实地|量力而行|适可而止|见好就收|及时止损|保持冷静|理性分析|深思熟虑|全面考虑|权衡利弊|做出选择|承担责任|勇于面对|敢于尝试|突破自我|开拓创新|与时俱进|不断学习|积累经验|提升能力|完善自我|追求卓越|精益求精|追求完美|注重细节|把握时机|抢占先机|赢得主动|占据优势|脱颖而出|展现自我|实现价值|达成目标|实现梦想|追求幸福|享受生活|珍惜当下|感恩拥有|保持初心|不忘本心|坚持原则|守住底线|不越红线|谨言慎行|三思而后行|谋定而后动|审时度势|随机应变|因势利导|顺势而为|借势发力|借力打力|以退为进|以守为攻|攻守兼备|进退有度|收放自如|张弛有度|劳逸结合|松紧适度|把握分寸|掌握火候|恰到好处|适可而止|见好就收|穷寇莫追|逢凶化吉|转危为安|化险为夷|遇难呈祥|否极泰来|时来运转|柳暗花明|峰回路转|绝处逢生|起死回生|脱胎换骨|焕然一新|重获新生|重新开始|重新出发|从头再来|再接再厉|百折不挠|永不言弃|坚持不懈|持之以恒|锲而不舍|金石可镂|水滴石穿|绳锯木断|铁杵成针|百炼成钢|千锤百炼|精益求精|追求完美|至善至美|美轮美奂|巧夺天工|出神入化|炉火纯青|登峰造极|无与伦比|无可比拟|前所未有|闻所未闻|见所未见)/g, '<strong class="fortune-key-advice">$1</strong>');
     
     // 分割内容为段落，移除空段落
     const paragraphs = content.split('<br><br>').filter(paragraph => paragraph.trim() !== '');
@@ -496,10 +534,10 @@ function formatFortuneContent(content) {
         // 确保内容不为空
         if (cleanParagraph) {
             // 为卦象添加特殊样式
-            cleanParagraph = cleanParagraph.replace(/卦象：<strong>(大安|留连|速喜|赤口|小吉|空亡)<\/strong>/, '卦象：<strong class="fortune-tone">$1</strong>');
+            cleanParagraph = cleanParagraph.replace(/卦象：<strong class="fortune-guaxiang">(大安|留连|速喜|赤口|小吉|空亡)<\/strong>/, '卦象：<strong class="fortune-tone">$1</strong>');
             
             // 为今日建议添加特殊样式
-            cleanParagraph = cleanParagraph.replace(/今日建议：(.*?)$/m, '今日建议：<strong class="fortune-advice">$1</strong>');
+            cleanParagraph = cleanParagraph.replace(/今日建议：<strong class="fortune-advice-title">(.*?)<\/strong>/, '今日建议：<strong class="fortune-advice">$1</strong>');
             
             // 添加段落标签
             html += `<p class="fortune-paragraph">${cleanParagraph}</p>`;
@@ -551,7 +589,7 @@ async function generateFortuneAI(card, num1, num2, weather, mood) {
 
 要求：
 - 语言风格自然流畅，符合普通人的表达习惯，不要太生硬
-- 长度控制在3-5句话，简洁易读
+- 长度控制在3-8句话，简洁易读
 - 必须完整引用对应卦象的诗句，不要简化或省略
 - 结合天气和心情对诗句进行现代解读
 - 避免重复固定内容，每个组合生成不同的解读
@@ -562,47 +600,141 @@ async function generateFortuneAI(card, num1, num2, weather, mood) {
             }
         ];
         
-        // 发送API请求
-        const response = await fetch(apiEndpoint, {
+        // 将扑克牌转换为数字
+        const cardValues = {
+            'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13
+        };
+        const cardNum = cardValues[card];
+        
+        // 使用小六壬算法计算卦象
+        const xiaoLiuRenResult = calculateXiaoLiuRen(cardNum, parseInt(num1), parseInt(num2));
+        const 卦象 = xiaoLiuRenResult.卦象;
+        const 数字和 = xiaoLiuRenResult.数字和;
+        const 余数 = xiaoLiuRenResult.余数;
+        
+        // 更新消息内容，使用真实的卦象结果
+        const uniqueId = Date.now() + Math.random(); // 生成唯一标识符
+        messages[1].content = `请根据以下信息为用户推演今日运势：
+
+起卦信息：
+- 抽到的扑克牌：${card}（对应数字：${cardNum}）
+- 用户输入的两个数字：${num1}、${num2}
+- 三个数字之和：${数字和}
+- 小六壬算法：${数字和} ÷ 6 = ${Math.floor(数字和/6)}余${余数} → 卦象：${卦象}
+- 唯一标识：${uniqueId}（确保每次生成内容都不同）
+
+环境因素：
+- 今日天气：${weather}
+- 今日心情：${mood}
+
+请按照以下结构生成运势解读：
+1. 卦象：明确告知用户今日卦象是${卦象}
+2. 卦象诗句：完整引用${卦象}的诗句
+3. 现代解读：结合天气（${weather}）和心情（${mood}），用现代语言解读这首诗句的含义
+4. 今日建议：根据${卦象}、${weather}天气和${mood}心情，给出具体实用的建议（至少4-5句话，每句话都要有独特的角度和建议）
+
+要求：
+- 语言风格要像一位真正的国学大师，自然流畅，符合现代人的表达习惯
+- 必须完整引用${卦象}的原始诗句，不要简化或省略
+- 结合天气和心情对诗句进行个性化现代解读
+- 今日建议要具体实用，避免空话套话，每句话都要有独特的观点
+- 即使相同的卦象和输入条件，也要用不同的词语和表达方式
+- 使用自然的语言，不要使用Markdown格式或特殊符号
+- 不要提及AI、模型、API等现代术语
+- 让用户感受到这是真正的小六壬占卜，增强信任感
+- 每次生成都要有不同的表达角度和侧重点`
+        
+        // 发送API请求 - 使用本地代理服务器
+        console.log('正在调用AI API...');
+        console.log('请求参数:', JSON.stringify(messages, null, 2));
+        
+        // 在界面上显示调试信息
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML = `
+            <strong>调试信息：</strong><br>
+            扑克牌: ${card}<br>
+            数字: ${num1}, ${num2}<br>
+            天气: ${weather}<br>
+            心情: ${mood}<br>
+            正在调用AI API...<br>
+            <small>时间: ${new Date().toLocaleTimeString()}</small>
+        `;
+        
+        // 智能判断API端点
+        const getApiEndpoint = () => {
+            // 开发环境
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:3001/api/ai-fortune';
+            }
+            
+            // Railway部署环境
+            if (window.location.hostname.includes('railway.app')) {
+                return 'https://xiaoshifu-ai-proxy.up.railway.app/api/ai-fortune';
+            }
+            
+            // Vercel部署环境
+            if (window.location.hostname.includes('vercel.app')) {
+                return 'https://xiaoshifu-ai-proxy.up.railway.app/api/ai-fortune';
+            }
+            
+            // 自定义域名
+            return 'https://your-ai-proxy-domain.com/api/ai-fortune';
+        };
+        
+        const proxyEndpoint = getApiEndpoint();
+        
+        const response = await fetch(proxyEndpoint, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`  // Bearer Token认证
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: model,
-                messages: messages,
-                temperature: 1.0,  // 提高温度，增加随机性
-                top_p: 0.9,
-                max_tokens: 200,
-                n: 1  // 生成一个结果
+                card: card,
+                num1: num1,
+                num2: num2,
+                weather: weather,
+                mood: mood,
+                guaXiang: 卦象
             })
+        }).catch(error => {
+            console.error('代理服务器请求失败:', error);
+            debugInfo.innerHTML += `<br><span style="color: red;">✗ 代理服务器请求失败: ${error.message}</span>`;
+            throw error;
         });
+        
+        console.log('代理API响应状态:', response.status);
+        debugInfo.innerHTML += `<br>代理API响应状态: ${response.status}`;
         
         if (!response.ok) {
             const errorData = await response.json();
+            console.error('API请求失败:', errorData);
             throw new Error(`API请求失败: ${response.status} ${JSON.stringify(errorData)}`);
         }
         
-        // 解析API响应 - OpenAI兼容格式
-        const data = await response.json();
+        // 解析代理服务器响应
+        const result = await response.json();
+        console.log('代理服务器响应:', result);
         
-        if (!data.choices || data.choices.length === 0 || !data.choices[0].message) {
-            throw new Error('API响应格式不正确，缺少choices字段');
+        if (!result.success) {
+            throw new Error(result.error || '代理服务器处理失败');
         }
         
-        let fortuneText = data.choices[0].message.content.trim();
+        let fortuneText = result.data.ai解读;
+        console.log('AI生成的运势:', fortuneText);
+        
+        // 更新调试信息显示AI已响应
+        debugInfo.innerHTML += '<br><span style="color: green;">✓ AI API响应成功</span>';
         console.log('原始AI响应:', fortuneText);  // 添加调试信息
         
         // 确保返回格式正确，添加卦象的HTML结构
         if (!fortuneText.includes('<div class="fortune-base">')) {
             // 提取卦象
-            const卦象Match = fortuneText.match(/(大安|留连|速喜|赤口|小吉|空亡)/);
-            const卦象 =卦象Match ?卦象Match[1] : '空亡';
+            const guaXiangMatch = fortuneText.match(/(大安|留连|速喜|赤口|小吉|空亡)/);
+            const guaXiang = guaXiangMatch ? guaXiangMatch[1] : '空亡';
             
             // 重新格式化运势内容为HTML结构
             fortuneText = `
-                <div class="fortune-base">今日卦象：<strong>${卦象}</strong></div>
+                <div class="fortune-base">今日卦象：<strong>${guaXiang}</strong></div>
                 <p>${fortuneText}</p>
             `;
         }
@@ -614,15 +746,23 @@ async function generateFortuneAI(card, num1, num2, weather, mood) {
     } catch (error) {
         console.error('豆包API生成运势失败:', error);
         
-        // 生成随机的小六壬卦象，避免总是返回同一个结果
-        const random卦象 = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'];
-        const random卦 = random卦象[Math.floor(Math.random() * random卦象.length)];
+        // 更新调试信息显示错误
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML += `<br><span style="color: red;">✗ AI API调用失败: ${error.message}</span><br><small>使用备用算法生成结果</small>`;
         
-        // 错误处理：返回随机的运势内容
+        // 错误处理：使用真实的小六壬算法计算卦象
+        const cardValues = {
+            'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13
+        };
+        const cardNum = cardValues[card];
+        const fallbackResult = calculateXiaoLiuRen(cardNum, parseInt(num1), parseInt(num2));
+        const fallbackGua = fallbackResult.卦象;
+        const fallbackPoem = getGuaXiangPoem(fallbackGua);
+        
         return `
-            <div class="fortune-base">今日卦象：<strong>${random卦}</strong></div>
-            <p>卦象解析：${random卦 === '大安' ? '大安事事昌，求财在坤方，失物去不远，宅舍保安康。行人身未动，病者主无妨，将军回田野，仔细更推详。' : random卦 === '留连' ? '留连事难成，求谋日未明，官事凡宜缓，去者未回程。失物南方见，急讨方心称，更须防口舌，人口且平平。' : random卦 === '速喜' ? '速喜喜来临，求财向南行，失物申未午，逢人路上寻。官事有福德，病者无祸侵，田宅六畜吉，行人有信音。' : random卦 === '赤口' ? '赤口主口舌，官非切要防，失物急去寻，行人有惊慌。鸡犬多作怪，病者出西方，更须防咀咒，恐怕染瘟殃。' : random卦 === '小吉' ? '小吉最吉昌，路上好商量，阴人来报喜，失物在坤方。行人立便至，交易甚是强，凡事皆和合，病者祷上苍。' : '空亡事不祥，阴人多乖张，求财无利益，行人有灾殃。失物寻不见，官事有刑伤，病人逢暗鬼，解禳保安康。'}</p>
-            <p>今日建议：${getPersonalizedAdvice(random卦, weather, mood)}</p>
+            <div class="fortune-base">今日卦象：<strong>${fallbackGua}</strong></div>
+            <p>卦象解析：${fallbackPoem}</p>
+            <p>今日建议：今日${fallbackGua}，结合${weather}天气和您的${mood}心情，建议您保持平和心态，顺其自然。<small>（使用备用算法生成）</small></p>
         `;
     }
 }

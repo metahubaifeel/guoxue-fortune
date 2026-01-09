@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI测试 - 简化版</title>
+</head>
+<body>
+    <h1>AI测试 - 简化版</h1>
+    <p>这个测试会直接显示AI是否真的被调用</p>
+    <button onclick="testAI()">测试AI</button>
+    <div id="result"></div>
+    
+    <script>
+    async function testAI() {
+        const result = document.getElementById('result');
+        result.innerHTML = '测试中...';
+        
+        try {
+            // 使用你的API配置
+            const apiKey = '3402183a-fbff-4f4d-8379-9477281a706c';
+            const endpoint = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+            const model = 'doubao-1-5-pro-32k-250115';
+            
+            const requestBody = {
+                model: model,
+                messages: [
+                    {"role": "system", "content": "你是一个测试助手"},
+                    {"role": "user", "content": "请说'AI工作正常'并加上当前时间"}
+                ],
+                temperature: 0.7,
+                max_tokens: 50
+            };
+            
+            console.log('发送请求到:', endpoint);
+            console.log('请求体:', JSON.stringify(requestBody, null, 2));
+            
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            console.log('响应状态:', response.status);
+            console.log('响应头:', Object.fromEntries(response.headers.entries()));
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('成功数据:', data);
+                const aiResponse = data.choices[0].message.content;
+                result.innerHTML = `<p style="color: green;">✓ AI工作正常!</p><p>AI回复: ${aiResponse}</p>`;
+            } else {
+                const errorData = await response.text();
+                console.error('错误详情:', errorData);
+                result.innerHTML = `<p style="color: red;">✗ API调用失败</p><p>状态码: ${response.status}</p><p>错误: ${errorData}</p>`;
+            }
+        } catch (error) {
+            console.error('完全失败:', error);
+            result.innerHTML = `<p style="color: red;">✗ 网络错误: ${error.message}</p>`;
+        }
+    }
+    </script>
+</body>
+</html>

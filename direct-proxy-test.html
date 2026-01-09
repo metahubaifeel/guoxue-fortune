@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>直接代理测试</title>
+</head>
+<body>
+    <h1>直接代理服务器测试</h1>
+    <button onclick="directTest()">直接测试</button>
+    <div id="result"></div>
+    
+    <script>
+    async function directTest() {
+        const result = document.getElementById('result');
+        result.innerHTML = '正在直接测试代理服务器...';
+        
+        try {
+            // 直接调用代理服务器
+            const response = await fetch('http://localhost:3001/api/ai-fortune', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card: 'A',
+                    num1: 1,
+                    num2: 1,
+                    weather: '晴',
+                    mood: '开心',
+                    guaXiang: '大安'
+                })
+            });
+            
+            result.innerHTML += `<p>响应状态: ${response.status}</p>`;
+            
+            if (response.ok) {
+                const data = await response.json();
+                result.innerHTML += `<p style="color: green;">✓ 代理服务器工作正常</p>`;
+                result.innerHTML += `<p><strong>AI回复:</strong></p>`;
+                result.innerHTML += `<div style="background: #f0f0f0; padding: 10px; border-radius: 5px;">${data.data.ai解读}</div>`;
+            } else {
+                const errorData = await response.json();
+                result.innerHTML += `<p style="color: red;">✗ 代理服务器错误: ${errorData.error}</p>`;
+            }
+            
+        } catch (error) {
+            result.innerHTML += `<p style="color: red;">✗ 完全失败: ${error.message}</p>`;
+            console.error('完整错误:', error);
+        }
+    }
+    </script>
+</body>
+</html>

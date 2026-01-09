@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>完整AI算命测试</title>
+</head>
+<body>
+    <h1>完整AI算命测试</h1>
+    <p>测试真实的AI算命流程</p>
+    <button onclick="testAIFortune()">测试AI算命</button>
+    <div id="debugInfo" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace; white-space: pre-wrap;"></div>
+    <div id="result"></div>
+    
+    <script>
+    function log(message) {
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML += new Date().toLocaleTimeString() + ' - ' + message + '\n';
+        console.log(message);
+    }
+    
+    async function testAIFortune() {
+        const result = document.getElementById('result');
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML = '';
+        log('开始AI算命测试...');
+        
+        try {
+            // 步骤1: 模拟用户输入
+            const card = 'A';
+            const num1 = 1;
+            const num2 = 1;
+            const weather = '晴';
+            const mood = '开心';
+            
+            log(`用户输入: 牌=${card}, 数字=${num1},${num2}, 天气=${weather}, 心情=${mood}`);
+            
+            // 步骤2: 小六壬算法
+            const cardValues = {'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13};
+            const cardNum = cardValues[card];
+            const total = cardNum + num1 + num2;
+            const remainder = total % 6;
+            const guaIndex = remainder === 0 ? 5 : remainder - 1;
+            const guaXiang = ['大安', '留连', '速喜', '赤口', '小吉', '空亡'][guaIndex];
+            
+            log(`小六壬计算: ${cardNum} + ${num1} + ${num2} = ${total}, ${total} % 6 = ${remainder} → 卦象: ${guaXiang}`);
+            
+            // 步骤3: 调用代理服务器
+            log('正在调用AI代理服务器...');
+            const response = await fetch('http://localhost:3001/api/ai-fortune', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card: card,
+                    num1: num1,
+                    num2: num2,
+                    weather: weather,
+                    mood: mood,
+                    guaXiang: guaXiang
+                })
+            });
+            
+            log(`代理服务器响应状态: ${response.status}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                log('收到AI回复!');
+                log(`AI回复内容: ${data.data.ai解读.substring(0, 100)}...`);
+                
+                result.innerHTML = `
+                    <h2>🎯 AI算命结果</h2>
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h3>今日卦象: ${data.data.卦象}</h3>
+                        <p><strong>AI大师解读:</strong></p>
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            ${data.data.ai解读}
+                        </div>
+                        <p style="font-size: 12px; opacity: 0.8;">生成时间: ${data.data.时间}</p>
+                    </div>
+                    <p style="color: green; font-size: 18px;">✅ 真实AI算命成功! 每次结果都会不同!</p>
+                `;
+            } else {
+                const errorData = await response.json();
+                log(`代理服务器错误: ${errorData.error}`);
+                result.innerHTML = `<p style="color: red;">❌ 代理服务器错误: ${errorData.error}</p>`;
+            }
+            
+        } catch (error) {
+            log(`完全失败: ${error.message}`);
+            result.innerHTML = `<p style="color: red;">❌ 完全失败: ${error.message}</p>`;
+            console.error('完整错误:', error);
+        }
+    }
+    </script>
+</body>
+</html>

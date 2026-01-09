@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>代理服务器测试</title>
+</head>
+<body>
+    <h1>代理服务器测试</h1>
+    <button onclick="testProxy()">测试代理服务器</button>
+    <div id="result"></div>
+    
+    <script>
+    async function testProxy() {
+        const result = document.getElementById('result');
+        result.innerHTML = '正在测试代理服务器...';
+        
+        try {
+            // 测试健康检查
+            const healthResponse = await fetch('http://localhost:3001/api/health');
+            if (healthResponse.ok) {
+                const healthData = await healthResponse.json();
+                result.innerHTML = `<p style="color: green;">✓ 代理服务器运行正常</p>`;
+                result.innerHTML += `<p>时间: ${healthData.timestamp}</p>`;
+            } else {
+                result.innerHTML = `<p style="color: red;">✗ 代理服务器健康检查失败</p>`;
+                return;
+            }
+            
+            // 测试AI算命接口
+            result.innerHTML += '<p>正在测试AI算命接口...</p>';
+            
+            const aiResponse = await fetch('http://localhost:3001/api/ai-fortune', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card: 'A',
+                    num1: 1,
+                    num2: 1,
+                    weather: '晴',
+                    mood: '开心',
+                    guaXiang: '大安'
+                })
+            });
+            
+            if (aiResponse.ok) {
+                const aiData = await aiResponse.json();
+                result.innerHTML += `<p style="color: green;">✓ AI算命接口工作正常</p>`;
+                result.innerHTML += `<p><strong>AI回复:</strong></p>`;
+                result.innerHTML += `<div style="background: #f0f0f0; padding: 10px; border-radius: 5px;">${aiData.data.ai解读}</div>`;
+            } else {
+                const errorData = await aiResponse.json();
+                result.innerHTML += `<p style="color: red;">✗ AI算命接口失败: ${errorData.error}</p>`;
+            }
+            
+        } catch (error) {
+            console.error('完全失败:', error);
+            result.innerHTML += `<p style="color: red;">✗ 完全失败: ${error.message}</p>`;
+        }
+    }
+    </script>
+</body>
+</html>
