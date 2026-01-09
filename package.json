@@ -1,41 +1,21 @@
 {
-  "name": "guoxue-fortune",
+  "name": "xiaoshifu-ai-proxy",
   "version": "1.0.0",
-  "description": "国学今日运势 - 小六壬起卦运势测算工具",
-  "main": "index.html",
+  "description": "AI代理服务器 for 小师傅来一卦",
+  "main": "ai-proxy-server.js",
   "scripts": {
-    "start": "python -m http.server 8000",
-    "build": "npm run minify-css && npm run minify-js",
-    "minify-css": "cleancss -o style.min.css style.css",
-    "minify-js": "uglifyjs script.js -o script.min.js -c -m",
-    "serve": "http-server -p 8080 -c-1",
-    "deploy": "npm run build && echo '构建完成，可以部署到服务器'"
+    "start": "node ai-proxy-server.js",
+    "dev": "node ai-proxy-server.js"
   },
-  "keywords": [
-    "fortune",
-    "divination",
-    "xiaoliuren",
-    "chinese-culture",
-    "poker-cards"
-  ],
-  "author": "国学今日运势",
-  "license": "MIT",
-  "devDependencies": {
-    "clean-css-cli": "^5.6.2",
-    "http-server": "^14.1.1",
-    "uglify-js": "^3.17.4"
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-fetch": "^2.6.7"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/guoxue-fortune.git"
-  },
-  "homepage": "https://your-username.github.io/guoxue-fortune/",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "node-fetch": "^2.7.0"
-  }
+  "keywords": ["ai", "proxy", "fortune", "xiaoshifu"],
+  "author": "Your Name",
+  "license": "MIT"
 }
