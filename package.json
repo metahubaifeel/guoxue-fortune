@@ -1,11 +1,11 @@
 {
-  "name": "xiaoshifu-complete",
+  "name": "xiaoshifu-fixed",
   "version": "1.0.0",
-  "description": "小师傅来一卦 - 完整版",
-  "main": "railway-server.js",
+  "description": "小师傅来一卦 - 修复版",
+  "main": "server.js",
   "scripts": {
-    "start": "node railway-server.js",
-    "dev": "node railway-server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",

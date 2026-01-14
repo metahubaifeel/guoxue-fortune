@@ -1,11 +1,11 @@
 [build]
 builder = "NIXPACKS"
 installCommand = "npm install"
-buildCommand = "echo 'Building complete application...'"
-startCommand = "node railway-server.js"
+buildCommand = "echo 'Building application...'"
+startCommand = "node server.js"
 
 [deploy]
-startCommand = "node railway-server.js"
+startCommand = "node server.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
