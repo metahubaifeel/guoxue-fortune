@@ -2,10 +2,10 @@
 builder = "NIXPACKS"
 installCommand = "npm install"
 buildCommand = "echo 'Building application...'"
-startCommand = "cd /app && node server.js"
+startCommand = "node server.js"
 
 [deploy]
-startCommand = "cd /app && node server.js"
+startCommand = "node server.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
