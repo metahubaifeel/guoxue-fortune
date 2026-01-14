@@ -8,11 +8,11 @@ COPY package.json ./
 # 安装依赖
 RUN npm install --production
 
-# 复制应用代码
-COPY ai-proxy-server.js ./
+# 复制所有文件
+COPY . .
 
 # 暴露端口
-EXPOSE 3001
+EXPOSE 3000
 
 # 启动命令
-CMD ["node", "ai-proxy-server.js"]
+CMD ["node", "server.js"]
